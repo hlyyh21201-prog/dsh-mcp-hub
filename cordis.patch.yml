@@ -1,0 +1,54 @@
+# dsh-mcp-hub bundle layer.
+#
+# Two rows:
+#   1. mcp-hub         — the plugin itself (Host + Client halves).
+#   2. mcp-hub-servers — a `cordis:include` subtree that mounts the MCP servers
+#      from the plugin's own data file.
+#
+# The include row is what gives the panel its start/stop semantics: the plugin
+# writes that file and calls the include's refresh(), so the Cordis Loader
+# reconciles individual entries (start / stop / re-configure) instead of
+# restarting the process. A missing file is created from `initial`.
+#
+# `path` is relative on purpose. `cordis:include` is an EntryGroup, and the
+# Loader's `internal/config` hook returns early for EntryGroup plugins
+# (`if ((this.runtime?.callback)?.[EntryGroup.key]) return config`), so `!!js`
+# is NEVER evaluated on an include row — writing
+# `path: !!js dshHomePath(...)` leaves an unevaluated {__jsExpr} object and the
+# include fails with `extension "" not supported`. A relative path is resolved
+# by `new URL(config.path, ctx.baseUrl)`, where baseUrl is the directory of the
+# profile's root config (<DSH_HOME>/profiles/<profile>/cordis.yml).
+#
+# WHY THE FILE LIVES IN THE PROFILE DIRECTORY (and not directly in <DSH_HOME>):
+# the data file holds `@deepseek-ai/dsh-mcp-client` rows, and dsh's startup
+# compatibility preflight resolves each row's manifest *relative to the file
+# that declares it*:
+#
+#     createRequire(pathToFileURL(<the include file>)).resolve.paths(<row.name>)
+#
+# A file at <DSH_HOME>/mcp-hub.yml walks up to <DSH_HOME>/node_modules and then
+# to the *parent of DSH_HOME* — if a leftover dsh install lives there, Node finds
+# ITS copy of dsh-mcp-client. With an older copy (e.g. 0.1.2-rc.1 against a
+# 0.2.0-rc.2 runtime) the peer check fails, and dsh refuses the whole include:
+#
+#     disabling profile plugin row "mcp-hub-servers": its included file
+#     <...>/mcp-hub.yml reaches an incompatible plugin, and that file is never
+#     rewritten
+#
+# Keeping the file inside the profile directory makes the walk-up land on
+# <DSH_HOME>/profiles/node_modules (and the dsh installation itself), which
+# carries the runtime-matched version. `./mcp-hub.yml` = beside the profile root
+# config, i.e. <DSH_HOME>/profiles/<profile>/mcp-hub.yml.
+#
+# Row 1 deliberately sets NO `dataFile`: the plugin derives it from the running
+# profile (`profileContext.dir`), which is exactly the directory `./mcp-hub.yml`
+# above resolves against. Hardcoding a path here would either pin the bundle to
+# one profile name or need a `!!js` expression in a config string.
+- insert:
+    - id: mcp-hub
+      name: '@yyh/dsh-mcp-hub'
+    - id: mcp-hub-servers
+      name: 'cordis:include'
+      config:
+        path: './mcp-hub.yml'
+        initial: []

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="MCP Hub">
+  <g fill="none" stroke="#4F8CFF" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="9" y="8" width="30" height="11" rx="3.2"/>
+    <rect x="9" y="22" width="30" height="11" rx="3.2"/>
+    <path d="M15 13.5h.02M15 27.5h.02"/>
+  </g>
+  <g stroke="#3FB950" stroke-width="2.6" stroke-linecap="round">
+    <path d="M24 33v6"/>
+    <path d="M19 37.5l5 3 5-3"/>
+  </g>
+</svg>

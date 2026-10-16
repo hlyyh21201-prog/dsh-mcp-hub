@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "MCP Hub",
+    "description": "Visual MCP server manager with start/stop, connection test, and multi-format import (Codex TOML, mcpServers JSON, VS Code mcp.json)."
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "MCP Hub",
+    "description": "可视化 MCP 服务器管理：启停、连接测试，以及多格式导入（Codex TOML、mcpServers JSON、VS Code mcp.json）。"
+  }
+}
